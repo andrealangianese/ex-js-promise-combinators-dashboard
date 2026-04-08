@@ -15,6 +15,33 @@
 // Stampare i dati in console in un messaggio ben formattato.
 // Testa la funzione con la query "london"
 
+async function fetchJson(url) {
+    const response = await fetch(url)
+    const obj = response.json()
+    return obj
+}
+
+async function getDashboardData(query) {
+    console.log('testing')
+    try {
+        const destinationsResponse = await fetchJson(`http://localhost:3333/destinations?search=${query}`);
+        const weatherResponse = await fetchJson(`http://localhost:3333/weathers?search=${query}`)
+        const airportResponse = await fetchJson(`http://localhost:3333/airports?search=${query}`)
+        // salvo le promises da passare al promise all
+        // const promises = [destinationsResponse, weatherResponse, airportResponse]
+        const [destinations, weather, airport] = await Promise.all([destinationsResponse, weatherResponse, airportResponse])
+
+        return {
+            city: destinations[0].name,
+            country: destinations[0].country,
+            temperature: weather[0].temperature,
+            weather: weather[0].weather_description,
+            airport: airport[0].name
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
 
 getDashboardData('london')
     .then(data => {
